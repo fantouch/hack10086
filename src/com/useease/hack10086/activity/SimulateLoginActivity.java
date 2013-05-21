@@ -13,9 +13,11 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.useease.hack10086.application.MyApp;
 import com.useease.hack10086.R;
+import com.useease.hack10086.application.MyApp;
+import com.useease.hack10086.application.MyFinalHttp;
 
+import net.tsz.afinal.FinalHttp;
 import net.tsz.afinal.http.AjaxCallBack;
 import net.tsz.afinal.http.AjaxParams;
 
@@ -49,11 +51,11 @@ public class SimulateLoginActivity extends Activity {
     }
 
     private void initCookie() {
-        // 排除旧的Cookies干扰,否则有可能提示系统繁忙
+        // 清除旧Cookies,否则有可能提示系统繁忙
         MyApp.getInstance().clearCookies();
 
-        MyApp.getInstance().getFinalHttp("gbk")
-                .get(MyApp.URL_LOGIN_PAGE, new AjaxCallBack<String>() {
+        MyFinalHttp finalHttp = MyApp.getInstance().getFinalHttp("gbk");
+        finalHttp.get(MyApp.URL_LOGIN_PAGE, new AjaxCallBack<String>() {
                     @Override
                     public void onStart() {
                         MyApp.getInstance().showProgressDialog(SimulateLoginActivity.this,
@@ -69,7 +71,7 @@ public class SimulateLoginActivity extends Activity {
 
                     @Override
                     public void onFailure(Throwable t, String strMsg) {
-                        MyApp.getInstance().hideProgressDialog();
+                        MyApp.getInstance().killDialog();
                         Log.e(TAG, strMsg, t);
                     }
                 });
@@ -79,14 +81,13 @@ public class SimulateLoginActivity extends Activity {
     /**
      * 刷新验证码按钮点击
      * 
-     * @param btn
+     * @param btn null is ok
      */
     public void refreshVerificationCode(View btn) {
         String imgPath = getCacheDir().getAbsolutePath() + File.separator
                 + "VerificationCode.jpg";
-        MyApp.getInstance()
-                .getFinalHttp("utf-8")
-                .download(MyApp.URL_VRFCODE + Math.random(), imgPath,
+        MyFinalHttp finalHttp = MyApp.getInstance().getFinalHttp("utf-8");
+        finalHttp.download(MyApp.URL_VRFCODE + Math.random(), imgPath,
                         getVerificationCodeHeaders(),
                         new AjaxCallBack<File>() {
                             @Override
@@ -97,7 +98,7 @@ public class SimulateLoginActivity extends Activity {
 
                             @Override
                             public void onSuccess(File file) {
-                                MyApp.getInstance().hideProgressDialog();
+                                MyApp.getInstance().killDialog();
                                 Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
                                 ImageView imageView = (ImageView) SimulateLoginActivity.this
                                         .findViewById(R.id.ivVerificationCode);
@@ -106,7 +107,7 @@ public class SimulateLoginActivity extends Activity {
 
                             @Override
                             public void onFailure(Throwable t, String strMsg) {
-                                MyApp.getInstance().hideProgressDialog();
+                                MyApp.getInstance().killDialog();
                                 Log.e(TAG, strMsg, t);
                             }
                         });
@@ -155,7 +156,7 @@ public class SimulateLoginActivity extends Activity {
 
                                 @Override
                                 public void onSuccess(String t) {
-                                    MyApp.getInstance().hideProgressDialog();
+                                    MyApp.getInstance().killDialog();
 
                                     LoginResultBean resultBean = new Gson().fromJson(t,
                                             LoginResultBean.class);
@@ -171,12 +172,11 @@ public class SimulateLoginActivity extends Activity {
 
                                 @Override
                                 public void onFailure(Throwable t, String strMsg) {
-                                    MyApp.getInstance().hideProgressDialog();
+                                    MyApp.getInstance().killDialog();
                                     Log.e(TAG, strMsg, t);
                                 }
                             });
         }
-
     }
 
     /**
@@ -207,7 +207,7 @@ public class SimulateLoginActivity extends Activity {
 
                             @Override
                             public void onSuccess(String t) {
-                                MyApp.getInstance().hideProgressDialog();
+                                MyApp.getInstance().killDialog();
 
                                 Toast.makeText(SimulateLoginActivity.this, t,
                                         Toast.LENGTH_SHORT).show();
@@ -217,7 +217,7 @@ public class SimulateLoginActivity extends Activity {
 
                             @Override
                             public void onFailure(Throwable t, String strMsg) {
-                                MyApp.getInstance().hideProgressDialog();
+                                MyApp.getInstance().killDialog();
                                 Log.e(TAG, strMsg, t);
                             }
                         });
@@ -247,7 +247,7 @@ public class SimulateLoginActivity extends Activity {
 
                             @Override
                             public void onSuccess(String t) {
-                                MyApp.getInstance().hideProgressDialog();
+                                MyApp.getInstance().killDialog();
 
                                 Toast.makeText(SimulateLoginActivity.this, t,
                                         Toast.LENGTH_SHORT).show();
@@ -259,7 +259,7 @@ public class SimulateLoginActivity extends Activity {
 
                             @Override
                             public void onFailure(Throwable t, String strMsg) {
-                                MyApp.getInstance().hideProgressDialog();
+                                MyApp.getInstance().killDialog();
                                 Log.e(TAG, strMsg, t);
                             }
                         });
@@ -288,7 +288,7 @@ public class SimulateLoginActivity extends Activity {
 
                             @Override
                             public void onSuccess(String t) {
-                                MyApp.getInstance().hideProgressDialog();
+                                MyApp.getInstance().killDialog();
 
                                 Toast.makeText(SimulateLoginActivity.this, t,
                                         Toast.LENGTH_SHORT).show();
@@ -300,7 +300,7 @@ public class SimulateLoginActivity extends Activity {
 
                             @Override
                             public void onFailure(Throwable t, String strMsg) {
-                                MyApp.getInstance().hideProgressDialog();
+                                MyApp.getInstance().killDialog();
                                 Log.e(TAG, strMsg, t);
                             }
                         });
@@ -333,7 +333,7 @@ public class SimulateLoginActivity extends Activity {
                                 Toast.makeText(SimulateLoginActivity.this, t,
                                         Toast.LENGTH_SHORT).show();
 
-                                MyApp.getInstance().hideProgressDialog();
+                                MyApp.getInstance().killDialog();
                                 MyApp.getInstance().saveCookies();
 
                                 SimulateLoginActivity.this.finish();
@@ -343,7 +343,7 @@ public class SimulateLoginActivity extends Activity {
 
                             @Override
                             public void onFailure(Throwable t, String strMsg) {
-                                MyApp.getInstance().hideProgressDialog();
+                                MyApp.getInstance().killDialog();
                                 Log.e(TAG, strMsg, t);
                             }
                         });
