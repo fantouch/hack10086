@@ -13,6 +13,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import net.tsz.afinal.FinalHttp;
+import net.tsz.afinal.http.PreferencesCookieStore;
 
 import org.apache.http.client.CookieStore;
 import org.apache.http.cookie.Cookie;
@@ -38,7 +39,7 @@ public class MyApp extends Application {
 
     private final String PRE_COOKIES = "cookies";
     private static MyApp mApp;
-    private FinalHttp fh;
+    private MyFinalHttp fh;
     private BasicCookieStore cookieStore;
 
     @Override
@@ -60,12 +61,12 @@ public class MyApp extends Application {
 
     public void showProgressDialog(Context ctx, String msg) {
         if (pd != null && pd.isShowing()) {
-            hideProgressDialog();
+            killDialog();
         }
         getProgressDialog(ctx, msg).show();
     }
 
-    public void hideProgressDialog() {
+    public void killDialog() {
         if (pd != null && pd.isShowing()) {
             pd.dismiss();
             pd = null;
@@ -73,39 +74,52 @@ public class MyApp extends Application {
     }
 
     public void saveCookies() {
+        // if (cookieStore != null) {
+        // List<Cookie> cookies = cookieStore.getCookies();
+        //
+        // Type type = new TypeToken<List<BasicClientCookie>>() {
+        // }.getType();
+        //
+        // String cookiesStr = new Gson().toJson(cookies, type);
+        // Log.i(TAG, "CookiesToBeSaved = " + cookiesStr);
+        //
+        // SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        // preferences.edit().putString(PRE_COOKIES, cookiesStr).commit();
+        //
+        // Log.i(TAG, "saveCookies()");
+        // }
         if (cookieStore != null) {
-            List<Cookie> cookies = cookieStore.getCookies();
-
-            Type type = new TypeToken<List<BasicClientCookie>>() {
-            }.getType();
-
-            String cookiesStr = new Gson().toJson(cookies, type);
-            Log.i(TAG, "CookiesToBeSaved = " + cookiesStr);
-
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-            preferences.edit().putString(PRE_COOKIES, cookiesStr).commit();
-
-            Log.i(TAG, "saveCookies()");
+            PreferencesCookieStore preCookieStore = new PreferencesCookieStore(this);
+            for (Cookie cookie : cookieStore.getCookies()) {
+                preCookieStore.addCookie(cookie);
+            }
         }
     }
 
     private CookieStore getRestoredCookies() {
+        // if (cookieStore == null) {
+        // cookieStore = new BasicCookieStore();
+        // String cookiesStr = PreferenceManager.getDefaultSharedPreferences(this).getString(
+        // PRE_COOKIES, "");
+        // Log.i(TAG, "CookiesToBeRestore = " + cookiesStr);
+        //
+        // if (cookiesStr != null && !cookiesStr.equals("")) {
+        // Type type = new TypeToken<List<BasicClientCookie>>() {
+        // }.getType();
+        // List<Cookie> cookies = new Gson().fromJson(cookiesStr, type);
+        // cookieStore.addCookies(cookies.toArray(new Cookie[cookies.size()]));
+        //
+        // Log.i(TAG, "RestoredCookiesSucc");
+        // } else {
+        // Log.i(TAG, "RestoredCookiesFail,will use new CookieStore");
+        // }
+        // }
+        // return cookieStore;
         if (cookieStore == null) {
             cookieStore = new BasicCookieStore();
-            String cookiesStr = PreferenceManager.getDefaultSharedPreferences(this).getString(
-                    PRE_COOKIES, "");
-            Log.i(TAG, "CookiesToBeRestore = " + cookiesStr);
-
-            if (cookiesStr != null && !cookiesStr.equals("")) {
-                Type type = new TypeToken<List<BasicClientCookie>>() {
-                }.getType();
-                List<Cookie> cookies = new Gson().fromJson(cookiesStr, type);
-                cookieStore.addCookies(cookies.toArray(new Cookie[cookies.size()]));
-
-                Log.i(TAG, "RestoredCookiesSucc");
-            } else {
-                Log.i(TAG, "RestoredCookiesFail,will use new CookieStore");
-            }
+            PreferencesCookieStore preCookieStore = new PreferencesCookieStore(this);
+            List<Cookie> cookies = preCookieStore.getCookies();
+            cookieStore.addCookies(cookies.toArray(new Cookie[cookies.size()]));
         }
         return cookieStore;
     }
@@ -124,17 +138,17 @@ public class MyApp extends Application {
         return mApp;
     }
 
-    public FinalHttp getFinalHttp(String charset) {
+
+    public MyFinalHttp getFinalHttp(String charset) {
         if (fh == null) {
-            fh = new FinalHttp();
+            fh = new MyFinalHttp();
             fh.configTimeout(20 * 1000);// 20s
             fh.configCookieStore(getRestoredCookies());
             fh.addHeader(
                     "User-Agent",
                     "Mozilla/5.0 (Linux; U; Android 2.3.3; en-us; sdk Build/GRI34) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1");
         }
-        fh.setCharset(charset);
+        fh.configCharset(charset);
         return fh;
     }
-
 }

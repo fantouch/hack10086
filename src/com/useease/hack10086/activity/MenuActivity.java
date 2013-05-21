@@ -19,7 +19,7 @@ public class MenuActivity extends Activity {
 
     public void onClick(View v) {
         switch (v.getId()) {
-
+            
             case R.id.btnSimulateLogin:
                 startActivity(new Intent(this, SimulateLoginActivity.class));
                 break;

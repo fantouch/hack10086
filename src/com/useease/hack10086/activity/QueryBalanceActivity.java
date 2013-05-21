@@ -25,7 +25,6 @@ public class QueryBalanceActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.query_balance_activity);
-
     }
 
     public void onClick_QueryBalance(View v) {
@@ -53,7 +52,7 @@ public class QueryBalanceActivity extends Activity {
                                     responseTxt.setText(Html.fromHtml(t));
                                 }
 
-                                MyApp.getInstance().hideProgressDialog();
+                                MyApp.getInstance().killDialog();
                             }
 
                             @Override
@@ -68,7 +67,7 @@ public class QueryBalanceActivity extends Activity {
                                 errMsg.append("\n\nstrMsg:\n\n");
                                 errMsg.append(strMsg);
 
-                                MyApp.getInstance().hideProgressDialog();
+                                MyApp.getInstance().killDialog();
 
                                 Toast.makeText(QueryBalanceActivity.this, errMsg, Toast.LENGTH_LONG)
                                         .show();
